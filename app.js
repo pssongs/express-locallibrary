@@ -15,8 +15,6 @@ var app = express();
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
-// const mongoDB = 'mongodb+srv://'+process.env.USER+':'+process.env.PW+'@cluster0.neiuh95.mongodb.net/?retryWrites=true&w=majority'
-//`mongodb+srv://${process.env.USER}:${process.env.PW}@cluster0.neiuh95.mongodb.net/?retryWrites=true&w=majority`
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI);
