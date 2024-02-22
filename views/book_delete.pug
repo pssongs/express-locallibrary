@@ -12,7 +12,7 @@ block content
       dl 
         each instance in bookInstances
           dt 
-            a(href=instance.url)  #{instance.status} Due Back Date: #{instance.due_back_formatted}
+            a(href=instance.url)  #{instance.book.title} Due Back Date: #{instance.due_back_formatted}
           
   else 
     p Do you really want to delete this Book?

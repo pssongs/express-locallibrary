@@ -159,10 +159,9 @@ exports.book_create_post = [
 exports.book_delete_get = asyncHandler(async (req, res, next) => {
   const [book, allBookInstances] = await Promise.all([
     Book.findById(req.params.id).exec(),
-    BookInstance.find({book:req.params.id})
+    BookInstance.find({book:req.params.id}).populate('book').exec()
   ])
 
-    // The book still has instances of the book
     res.render('book_delete',{
       title: 'Delete Book',
       book:book,
@@ -174,7 +173,7 @@ exports.book_delete_get = asyncHandler(async (req, res, next) => {
 exports.book_delete_post = asyncHandler(async (req, res, next) => {
   const [book, allBookInstances] = await Promise.all([
     Book.findById(req.params.id).exec(),
-    BookInstance.find({book:req.params.id})
+    BookInstance.find({book:req.params.id}).populate('book').exec()
   ])
 
   if (allBookInstances.length > 0){
