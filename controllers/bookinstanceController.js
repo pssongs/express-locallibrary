@@ -115,10 +115,57 @@ exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display BookInstance update form on GET.
 exports.bookinstance_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance update GET");
+  const bookInstance = await BookInstance.findById(req.params.id).populate('book').exec()
+  const bookList = await Book.find({}, "title").sort({ title: 1 }).exec();
+  if (bookInstance == null){
+    const error = new Error('book instance does not exist')
+    error.status = 400
+    return next(error)
+  }
+
+  res.render('bookinstance_form',{
+    title: 'Update Book Instance',
+    bookinstance: bookInstance,
+    selected_book: bookInstance.book._id,
+    book_list: bookList,
+  })
 });
 
 // Handle bookinstance update on POST.
-exports.bookinstance_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance update POST");
-});
+exports.bookinstance_update_post = [
+  // Validate and sanitize fields.
+  body("book", "Book must be specified").trim().isLength({ min: 1 }).escape(),
+  body("imprint", "Imprint must be specified")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("status").escape(),
+  body("due_back", "Invalid date")
+    .optional({ values: "falsy" })
+    .isISO8601()
+    .toDate()
+  ,
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req)
+    
+    const bookInstance = new BookInstance({
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back,
+      _id: req.params.id,
+    })
+
+    if (!errors.isEmpty()){
+      res.render('bookinstance_form',{
+        title: 'Update Book Instance',
+        bookinstance: bookInstance,
+        selected_book: bookInstance.book._id,
+        book_list: bookList,
+        errors: errors,
+      })
+    } else {
+      await BookInstance.findByIdAndUpdate(req.params.id,bookInstance)
+      res.redirect(bookInstance.url)
+    }
+})]
